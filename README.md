@@ -73,12 +73,13 @@ src/
 ```mermaid
 flowchart TD
     Cliente["Cliente HTTP (Frontend / Postman)"] -->|HTTP Request| Rutas["Router Modular Express (/api/v1/workout)"]
-    Rutas -->|Comprobación de Caché| Cache{"¿Está en Caché?"}
-    Cache -->|Sí (HIT)| RespuestaRapida["200 OK (Caché en Memoria)"] --> Cliente
-    Cache -->|No (MISS)| Controller["Controlador (workout._controller.ts)\nValidación de Payload y Query Params"]
-    Controller -->|Llamada con Tipos Estrictos| Service["Servicio (workout_services.ts)\nLógica de Negocio, UUIDs y Timestamps"]
-    Service -->|Operación DAO| Adaptador["Adaptador de Persistencia (database/adaptador.ts)"]
-    Adaptador -->|Lectura / Escritura| Storage[("Almacén de Datos (data/db.json / Futura DB)")]
+    Rutas -->|Comprobacion de Cache| Cache{"¿Esta en Cache?"}
+    Cache -->|Si - En Cache| RespuestaRapida["200 OK (Cache en Memoria)"]
+    RespuestaRapida --> Cliente
+    Cache -->|No - Consulta Nueva| Controller["Controlador (workout._controller.ts)\nValidacion de Payload y Query Params"]
+    Controller -->|Llamada con Tipos Estrictos| Service["Servicio (workout_services.ts)\nLogica de Negocio, UUIDs y Timestamps"]
+    Service -->|Operacion DAO| Adaptador["Adaptador de Persistencia (database/adaptador.ts)"]
+    Adaptador -->|Lectura / Escritura| Storage[("Almacen de Datos (data/db.json / Futura DB)")]
     Storage --> Adaptador
     Adaptador --> Service
     Service --> Controller
