@@ -4,11 +4,11 @@
   "description": "",
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
-  "main": "index.js",
+  "type": "module",
+  "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.ts",
+    "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts"
   },
   "dependencies": {
@@ -19,6 +19,7 @@
     "nodemon": "^3.1.14",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
+    "tsx": "^4.23.15",
     "uuid": "^14.0.3"
   },
   "devDependencies": {
@@ -28,7 +29,6 @@
     "@types/node": "^26.6.5",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
-    "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }
 }
