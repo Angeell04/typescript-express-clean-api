@@ -4,6 +4,9 @@
 ### **API REST Modular para Gestión de Entrenamientos, Miembros y Marcas Deportivas**
 
 <p align="center">
+  <a href="https://typescript-express-clean-api-1.onrender.com/api/v1/workout" target="_blank">
+    <img src="https://img.shields.io/badge/Live_API-Render_Desplegado-46E3B7?style=for-the-badge&logo=render&logoColor=black" alt="Render Live" />
+  </a>
   <img src="https://img.shields.io/badge/Estado-En_Desarrollo_Activo_(Fase_1:_Motor_CRUD_+_Cache)-0EA5E9?style=for-the-badge" alt="Estado" />
   <img src="https://img.shields.io/badge/Arquitectura-Layered_Architecture_(Clean_Code)-10B981?style=for-the-badge" alt="Arquitectura" />
 </p>
@@ -32,9 +35,26 @@
 
 **Servicio backend desarrollado en Node.js y Express 5 con tipado estricto en TypeScript. Implementa una arquitectura por capas desacoplada que separa el enrutamiento, los controladores HTTP, la lógica de negocio y la capa de acceso a datos (DAO/Adaptador).**
 
-[Arquitectura en Capas](#1-arquitectura-del-software) • [Flujo de una Petición](#2-flujo-de-datos-de-una-petición) • [Especificación de Endpoints](#3-especificación-de-endpoints-api-v1) • [Filtrado por Query Params](#4-filtrado-avanzado-por-query-params) • [Manejo de Errores](#5-manejo-de-errores-y-códigos-http) • [Roadmap](#6-roadmap-de-desarrollo-continuo) • [Instalación](#7-instalación-y-ejecución)
+> 🚀 **API en Producción (Desplegada en Render):**  
+> Puedes probarla en vivo directamente en: [`https://typescript-express-clean-api-1.onrender.com/api/v1/workout`](https://typescript-express-clean-api-1.onrender.com/api/v1/workout)  
+> *Soporta peticiones GET con filtrado dinámico por Query Params (`?mode=`, `?equipment=`, `?limit=`) y caché en memoria.*
+
+[Live Demo](#-probar-la-api-en-vivo) • [Arquitectura en Capas](#1-arquitectura-del-software) • [Flujo de una Petición](#2-flujo-de-datos-de-una-petición) • [Especificación de Endpoints](#3-especificación-de-endpoints-api-v1) • [Filtrado por Query Params](#4-filtrado-avanzado-por-query-params) • [Manejo de Errores](#5-manejo-de-errores-y-códigos-http) • [Instalación](#7-instalación-y-ejecución)
 
 </div>
+
+---
+
+## 🌐 Probar la API en Vivo
+
+La API está desplegada y disponible públicamente en Render:
+
+- **Endpoint de Entrenamientos:** [`https://typescript-express-clean-api-1.onrender.com/api/v1/workout`](https://typescript-express-clean-api-1.onrender.com/api/v1/workout)
+- **Consulta con Filtros de Ejemplo:**
+  - Solo entrenamientos modo AMRAP: [`.../api/v1/workout?mode=AMRAP`](https://typescript-express-clean-api-1.onrender.com/api/v1/workout?mode=AMRAP)
+  - Limitar a 2 resultados: [`.../api/v1/workout?limit=2`](https://typescript-express-clean-api-1.onrender.com/api/v1/workout?limit=2)
+
+*(Nota: En el plan gratuito de Render, si el servicio lleva tiempo inactivo, la primera petición puede tardar unos 20-30 segundos mientras la instancia se despierta).*
 
 ---
 
@@ -90,7 +110,8 @@ flowchart TD
 
 ## 3. Especificación de Endpoints (API v1)
 
-Base URL: `http://localhost:3002/api/v1/workout`
+- **Producción (Render):** `https://typescript-express-clean-api-1.onrender.com/api/v1/workout`
+- **Local:** `http://localhost:3002/api/v1/workout`
 
 | Método | Endpoint | Middleware | Código Éxito | Descripción |
 | :--- | :--- | :--- | :--- | :--- |
@@ -123,20 +144,20 @@ En caso de fallo o validación incorrecta:
 
 ## 4. Filtrado Avanzado por Query Params
 
-El endpoint `GET /api/v1/workout` permite combinar parámetros de búsqueda en la URL:
+El endpoint `GET /api/v1/workout` permite combinar parámetros de búsqueda en la URL (tanto en producción como en local):
 
 ```bash
-# Filtrar por modo de entrenamiento
-curl "http://localhost:3002/api/v1/workout?mode=AMRAP"
+# Consultar en vivo en producción (Render)
+curl "https://typescript-express-clean-api-1.onrender.com/api/v1/workout?mode=AMRAP"
 
 # Filtrar por equipamiento necesario
-curl "http://localhost:3002/api/v1/workout?equipment=barbell"
+curl "https://typescript-express-clean-api-1.onrender.com/api/v1/workout?equipment=barbell"
 
 # Limitar el número de resultados devueltos
-curl "http://localhost:3002/api/v1/workout?limit=2"
+curl "https://typescript-express-clean-api-1.onrender.com/api/v1/workout?limit=2"
 
 # Combinar múltiples criterios
-curl "http://localhost:3002/api/v1/workout?mode=For%20Time&limit=1"
+curl "https://typescript-express-clean-api-1.onrender.com/api/v1/workout?mode=For%20Time&limit=1"
 ```
 
 ---
