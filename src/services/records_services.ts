@@ -30,9 +30,11 @@ const createOneRecord = (record: WorkoutRecord): WorkoutRecord => {
     }
 };
 
-const updateOneRecord = (id: string, record: WorkoutRecord): boolean => {
+const updateOneRecord = (id: string, record: WorkoutRecord): WorkoutRecord | undefined => {
     try {
-        return updateRecord(id, record);
+        const updated = updateRecord(id, record);
+        if (!updated) return undefined;
+        return loadRecord(id);
     } catch (error) {
         throw toHttpError(error);
     }

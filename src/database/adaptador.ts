@@ -35,7 +35,7 @@ export const createWorkout = (workout: Workout): boolean => {
 export const loadWorkout = (id: string): Workout | undefined => {
     try {
         let dataBase: Database = loadDB();
-        return dataBase.workouts.find((workout) => workout.id === id);
+        return dataBase.workouts.find((workout: Workout) => workout.id === id);
     } catch (error) {
         throw toHttpError(error);
     }
@@ -45,13 +45,14 @@ export const updateWorkout = (id: string, workout: Workout): boolean => {
     try {
         let dataBase: Database = loadDB();
         let updated = false;
-        dataBase.workouts.forEach((work) => {
+        dataBase.workouts.forEach((work: Workout) => {
             if (work.id === id) {
                 if (workout.name !== undefined) work.name = workout.name;
                 if (workout.mode !== undefined) work.mode = workout.mode;
                 if (workout.equipment !== undefined) work.equipment = workout.equipment;
                 if (workout.exercises !== undefined) work.exercises = workout.exercises;
                 if (workout.trainerTips !== undefined) work.trainerTips = workout.trainerTips;
+                work.updatedAt = new Date().toISOString();
                 updated = true;
             }
         });
@@ -69,7 +70,7 @@ export const deleteWorkout = (id: string): boolean => {
     try {
         let dataBase: Database = loadDB();
         const initialLength = dataBase.workouts.length;
-        const workoutsActualizados = dataBase.workouts.filter(workout => workout.id !== id);
+        const workoutsActualizados = dataBase.workouts.filter((workout: Workout) => workout.id !== id);
         if (workoutsActualizados.length === initialLength) {
             return false;
         }
@@ -85,7 +86,7 @@ export const deleteWorkout = (id: string): boolean => {
 export const loadRecord = (id: string): WorkoutRecord | undefined => {
     try {
         let datos: Database = loadDB();
-        return datos.records.find((record) => record.id === id);
+        return datos.records.find((record: WorkoutRecord) => record.id === id);
     } catch (error) {
         throw toHttpError(error);
     }
@@ -106,7 +107,7 @@ export const updateRecord = (id: string, record: WorkoutRecord): boolean => {
     try {
         let dataBase: Database = loadDB();
         let updated = false;
-        dataBase.records.forEach((reco) => {
+        dataBase.records.forEach((reco: WorkoutRecord) => {
             if (reco.id === id) {
                 if (record.member !== undefined) reco.member = record.member;
                 if (record.record !== undefined) reco.record = record.record;
@@ -129,7 +130,7 @@ export const deleteRecord = (id: string): boolean => {
     try {
         let dataBase: Database = loadDB();
         const initialLength = dataBase.records.length;
-        const recordActualizados = dataBase.records.filter(record => record.id !== id);
+        const recordActualizados = dataBase.records.filter((record: WorkoutRecord) => record.id !== id);
         if (recordActualizados.length === initialLength) {
             return false;
         }
@@ -141,7 +142,6 @@ export const deleteRecord = (id: string): boolean => {
     }
 };
 
-
 export const traeApi = (): string => {
     try {
         return loadDB().api;
@@ -149,4 +149,3 @@ export const traeApi = (): string => {
         throw toHttpError(error);
     }
 };
-

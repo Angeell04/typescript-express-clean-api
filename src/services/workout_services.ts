@@ -1,22 +1,22 @@
 import { createWorkout, deleteWorkout, loadDB, loadWorkout, updateWorkout, traeApi } from "../database/adaptador";
-import { Filtros, Workout } from "../types/workout-interface";
+import { Workout } from "../types/workout-interface";
 import { v4 as uuid } from 'uuid';
 import { toHttpError } from "../utils/http_error";
 
 const getAllWorkout = (): Workout[] => {
-    return  loadDB().workouts;
+    return loadDB().workouts;
 };
 
-const getOneWorkout = (id: string) => {
-    try{
+const getOneWorkout = (id: string): Workout | undefined => {
+    try {
         return loadWorkout(id);
-    }catch(error){
+    } catch (error) {
         throw toHttpError(error);
     }
 };
 
-const createOneWorkout = (workout: Workout) => {
-    try{
+const createOneWorkout = (workout: Workout): Workout => {
+    try {
         const id: string = uuid();
         const fechaCreacion = new Date().toISOString();
         const fechaActualizacion = new Date().toISOString();
@@ -26,27 +26,26 @@ const createOneWorkout = (workout: Workout) => {
         workout.updatedAt = fechaActualizacion;
         
         createWorkout(workout);
-    return workout;
-    }catch(error){
-        throw toHttpError(error);
-    }
-    
-};
-
-const updateOneWorkout = (id:string,workout:Workout) => {
-    try{
-        updateWorkout(id, workout);
-    return true;
-    }catch(error){
+        return workout;
+    } catch (error) {
         throw toHttpError(error);
     }
 };
 
-const deleteOneWorkout = (id:string) => {
-    try{
-        deleteWorkout(id);
-        return;
-    }catch(error){
+const updateOneWorkout = (id: string, workout: Workout): Workout | undefined => {
+    try {
+        const updated = updateWorkout(id, workout);
+        if (!updated) return undefined;
+        return loadWorkout(id);
+    } catch (error) {
+        throw toHttpError(error);
+    }
+};
+
+const deleteOneWorkout = (id: string): boolean => {
+    try {
+        return deleteWorkout(id);
+    } catch (error) {
         throw toHttpError(error);
     }
 };
