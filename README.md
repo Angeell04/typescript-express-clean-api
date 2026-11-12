@@ -7,6 +7,9 @@
   <a href="https://typescript-express-clean-api-1.onrender.com/api/v1/workout" target="_blank">
     <img src="https://img.shields.io/badge/Live_API-Render_Desplegado-46E3B7?style=for-the-badge&logo=render&logoColor=black" alt="Render Live" />
   </a>
+  <a href="https://typescript-express-clean-api-1.onrender.com/api/v1/docs" target="_blank">
+    <img src="https://img.shields.io/badge/Swagger-OpenAPI_3.0-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger Docs" />
+  </a>
   <img src="https://img.shields.io/badge/Estado-En_Desarrollo_Activo_(Fase_1:_Motor_CRUD_+_Cache)-0EA5E9?style=for-the-badge" alt="Estado" />
   <img src="https://img.shields.io/badge/Arquitectura-Layered_Architecture_(Clean_Code)-10B981?style=for-the-badge" alt="Arquitectura" />
 </p>
@@ -49,6 +52,8 @@
 
 La API está desplegada y disponible públicamente en Render:
 
+- **Documentación Interactiva (Swagger UI):** [`https://typescript-express-clean-api-1.onrender.com/api/v1/docs`](https://typescript-express-clean-api-1.onrender.com/api/v1/docs)
+- **Especificación OpenAPI (JSON):** [`https://typescript-express-clean-api-1.onrender.com/api/v1/docs.json`](https://typescript-express-clean-api-1.onrender.com/api/v1/docs.json)
 - **Endpoint de Entrenamientos:** [`https://typescript-express-clean-api-1.onrender.com/api/v1/workout`](https://typescript-express-clean-api-1.onrender.com/api/v1/workout)
 - **Consulta con Filtros de Ejemplo:**
   - Solo entrenamientos modo AMRAP: [`.../api/v1/workout?mode=AMRAP`](https://typescript-express-clean-api-1.onrender.com/api/v1/workout?mode=AMRAP)

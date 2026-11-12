@@ -1,4 +1,4 @@
-import { createWorkout, deleteWorkout, loadDB, loadWorkout, updateWorkout } from "../database/adaptador";
+import { createWorkout, deleteWorkout, loadDB, loadWorkout, updateWorkout, traeApi } from "../database/adaptador";
 import { Filtros, Workout } from "../types/workout-interface";
 import { v4 as uuid } from 'uuid';
 import { toHttpError } from "../utils/http_error";
@@ -51,10 +51,19 @@ const deleteOneWorkout = (id:string) => {
     }
 };
 
+const loadApi = (): string => {
+    try {
+        return traeApi();
+    } catch (error) {
+        throw toHttpError(error);
+    }
+};
+
 export {
     getAllWorkout,
     getOneWorkout,
     createOneWorkout,
     updateOneWorkout,
-    deleteOneWorkout
+    deleteOneWorkout,
+    loadApi
 };

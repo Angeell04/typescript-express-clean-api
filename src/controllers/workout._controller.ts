@@ -3,7 +3,6 @@ import * as workoutServices from '../services/workout_services';
 import { Filtros, Workout } from "../types/workout-interface";
 
 const getAllWorkout = (request: Request, response: Response) => {
-    
     const {mode} = request.query;
     const {equipment} = request.query;
     const {createdAt} = request.query;
@@ -84,10 +83,16 @@ const deleteOneWorkout = (request: Request, response: Response) => {
     response.status(204).send({ status: 'OK' });
 };
 
+const getApiKey = (request: Request, response: Response) => {
+    const api: string = workoutServices.loadApi();
+    response.send({ status: 'OK', data: api });
+};
+
 export {
     getAllWorkout,
     getOneWorkout,
     createOneWorkout,
     updateOneWorkout,
-    deleteOneWorkout
+    deleteOneWorkout,
+    getApiKey
 };
