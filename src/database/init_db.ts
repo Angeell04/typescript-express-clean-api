@@ -3,18 +3,21 @@ import { env } from "../config/env";
 import type { Workout, WorkoutRecord } from "../types/workout-interface";
 
 export const initDB = async (): Promise<void> => {
-    const masterPool = await new sql.ConnectionPool({
-        ...env.db,
-        database: "master"
-    }).connect();
+    try {
+        const masterPool = await new sql.ConnectionPool({
+            ...env.db,
+            database: "master"
+        }).connect();
 
-    await masterPool.request().query(`
-        IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = '${env.db.database}')
-        BEGIN
-            CREATE DATABASE [${env.db.database}];
-        END
-    `);
-    await masterPool.close();
+        await masterPool.request().query(`
+            IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = '${env.db.database}')
+            BEGIN
+                CREATE DATABASE [${env.db.database}];
+            END
+        `);
+        await masterPool.close();
+    } catch {
+    }
 
     const pool = await sql.connect(env.db);
 
