@@ -22,9 +22,7 @@ const router2: Router = Router();
 const router3: Router = Router();
 const cache = apicache.middleware;
 
-// ==========================================
-// RUTAS: WORKOUT (/api/v1/workout)
-// ==========================================
+
 
 /**
  * @openapi
@@ -240,9 +238,7 @@ router1.patch('/:id', updateOneWorkout);
  */
 router1.delete('/:id', deleteOneWorkout);
 
-// ==========================================
-// RUTAS: RECORDS (/api/v1/records)
-// ==========================================
+
 
 /**
  * @openapi
@@ -457,9 +453,7 @@ router2.patch('/:id', updateOneRecord);
  */
 router2.delete('/:id', deleteOneRecord);
 
-// ==========================================
-// RUTAS: API KEY (/api/v1)
-// ==========================================
+
 
 /**
  * @openapi

@@ -3,46 +3,47 @@ import { WorkoutRecord } from "../types/workout-interface";
 import { v4 as uuid } from 'uuid';
 import { toHttpError } from "../utils/http_error";
 
-const getAllRecords = (): WorkoutRecord[] => {
+const getAllRecords = async (): Promise<WorkoutRecord[]> => {
     try {
-        return loadDB().records;
+        const db = await loadDB();
+        return db.records;
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-const getOneRecord = (id: string): WorkoutRecord | undefined => {
+const getOneRecord = async (id: string): Promise<WorkoutRecord | undefined> => {
     try {
-        return loadRecord(id);
+        return await loadRecord(id);
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-const createOneRecord = (record: WorkoutRecord): WorkoutRecord => {
+const createOneRecord = async (record: WorkoutRecord): Promise<WorkoutRecord> => {
     try {
         const id: string = uuid();
         record.id = id;
-        createRecord(record);
+        await createRecord(record);
         return record;
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-const updateOneRecord = (id: string, record: WorkoutRecord): WorkoutRecord | undefined => {
+const updateOneRecord = async (id: string, record: WorkoutRecord): Promise<WorkoutRecord | undefined> => {
     try {
-        const updated = updateRecord(id, record);
+        const updated = await updateRecord(id, record);
         if (!updated) return undefined;
-        return loadRecord(id);
+        return await loadRecord(id);
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-const deleteOneRecord = (id: string): boolean => {
+const deleteOneRecord = async (id: string): Promise<boolean> => {
     try {
-        return deleteRecord(id);
+        return await deleteRecord(id);
     } catch (error) {
         throw toHttpError(error);
     }

@@ -189,9 +189,11 @@ curl "https://typescript-express-clean-api-1.onrender.com/api/v1/workout?mode=Fo
   - Implementación de controladores y servicios para `Members` (registro y autenticación).
   - Gestión de `WorkoutRecords` (registro de marcas y marcas personales por miembro).
   - Middlewares de seguridad activos (`helmet`, `cors`).
-- [ ] **Fase 3 (Próxima):**
+- [x] **Fase 3 (Completada):**
   - Documentación interactiva con OpenAPI / Swagger (`swagger-ui-express`).
-  - Migración del adaptador de persistencia a base de datos relacional MySQL.
+  - Migración del adaptador de persistencia a base de datos relacional Microsoft SQL Server en contenedor Docker.
+  - Creación automática de esquema y tablas (`Config`, `Workouts`, `Members`, `Records`) con siembra de datos de prueba.
+  - Orquestación con `docker-compose.yml`.
 
 ---
 
@@ -201,17 +203,18 @@ curl "https://typescript-express-clean-api-1.onrender.com/api/v1/workout?mode=Fo
 - Node.js (versión 20.x o superior recomendada)
 - npm (versión 10.x o superior)
 
-### Pasos de Instalación
+### Pasos de Instalación y Ejecución
 ```bash
-# 1. Clonar el repositorio
-git clone https://github.com/Angeell04/typescript-express-clean-api.git
-cd typescript-express-clean-api
-
-# 2. Instalar dependencias
+# 1. Instalar dependencias
 npm install
 
-# 3. Iniciar el servidor en modo desarrollo (con hot-reload vía tsx)
+# 2. Levantar el contenedor de Microsoft SQL Server con Docker Compose
+docker compose up -d
+
+# 3. Iniciar el servidor en modo desarrollo
 npm run dev
+# o en modo producción:
+npm start
 ```
 
 El servidor iniciará por defecto en `http://localhost:3002`.

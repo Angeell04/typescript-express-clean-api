@@ -3,19 +3,24 @@ import { Workout } from "../types/workout-interface";
 import { v4 as uuid } from 'uuid';
 import { toHttpError } from "../utils/http_error";
 
-const getAllWorkout = (): Workout[] => {
-    return loadDB().workouts;
-};
-
-const getOneWorkout = (id: string): Workout | undefined => {
+const getAllWorkout = async (): Promise<Workout[]> => {
     try {
-        return loadWorkout(id);
+        const db = await loadDB();
+        return db.workouts;
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-const createOneWorkout = (workout: Workout): Workout => {
+const getOneWorkout = async (id: string): Promise<Workout | undefined> => {
+    try {
+        return await loadWorkout(id);
+    } catch (error) {
+        throw toHttpError(error);
+    }
+};
+
+const createOneWorkout = async (workout: Workout): Promise<Workout> => {
     try {
         const id: string = uuid();
         const fechaCreacion = new Date().toISOString();
@@ -25,34 +30,34 @@ const createOneWorkout = (workout: Workout): Workout => {
         workout.createdAt = fechaCreacion;
         workout.updatedAt = fechaActualizacion;
         
-        createWorkout(workout);
+        await createWorkout(workout);
         return workout;
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-const updateOneWorkout = (id: string, workout: Workout): Workout | undefined => {
+const updateOneWorkout = async (id: string, workout: Workout): Promise<Workout | undefined> => {
     try {
-        const updated = updateWorkout(id, workout);
+        const updated = await updateWorkout(id, workout);
         if (!updated) return undefined;
-        return loadWorkout(id);
+        return await loadWorkout(id);
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-const deleteOneWorkout = (id: string): boolean => {
+const deleteOneWorkout = async (id: string): Promise<boolean> => {
     try {
-        return deleteWorkout(id);
+        return await deleteWorkout(id);
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-const loadApi = (): string => {
+const loadApi = async (): Promise<string> => {
     try {
-        return traeApi();
+        return await traeApi();
     } catch (error) {
         throw toHttpError(error);
     }

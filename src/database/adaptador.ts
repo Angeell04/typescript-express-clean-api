@@ -1,150 +1,208 @@
-import { readFileSync, writeFileSync } from 'fs';
-import path from "node:path";
+import sql from "mssql";
+import { env } from "../config/env";
 import type { Database, Workout, WorkoutRecord } from "../types/workout-interface";
 import { toHttpError } from '../utils/http_error';
 
-const DB_PATH: string = path.resolve(import.meta.dirname, "../../data/db.json");
+const getConnection = async () => {
+    return await sql.connect(env.db);
+};
 
-export const loadDB = (): Database => {
+
+export const loadDB = async (): Promise<Database> => {
     try {
-        return JSON.parse(readFileSync(DB_PATH, "utf-8")) as Database;
+        const pool = await getConnection();
+        const workoutsRes = await pool.request().query("SELECT * FROM Workouts");
+        const recordsRes = await pool.request().query("SELECT * FROM Records");
+        const membersRes = await pool.request().query("SELECT * FROM Members");
+        const configRes = await pool.request().query("SELECT valor FROM Config WHERE clave = 'api'");
+
+        const workouts: Workout[] = workoutsRes.recordset.map((row) => ({
+            ...row,
+            equipment: JSON.parse(row.equipment),
+            exercises: JSON.parse(row.exercises),
+            trainerTips: JSON.parse(row.trainerTips)
+        }));
+
+        return {
+            api: configRes.recordset[0]?.valor || "angel",
+            workouts,
+            member: membersRes.recordset,
+            records: recordsRes.recordset
+        };
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-export const saveToDatabase = (db: Database): void => {
+export const loadWorkout = async (id: string): Promise<Workout | undefined> => {
     try {
-        writeFileSync(DB_PATH, JSON.stringify(db, null, 2), "utf-8");
+        const pool = await getConnection();
+        const result = await pool.request()
+            .input("id", id)
+            .query("SELECT * FROM Workouts WHERE id = @id");
+
+        if (result.recordset.length === 0) return undefined;
+
+        const row = result.recordset[0];
+        return {
+            ...row,
+            equipment: JSON.parse(row.equipment),
+            exercises: JSON.parse(row.exercises),
+            trainerTips: JSON.parse(row.trainerTips)
+        };
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-export const createWorkout = (workout: Workout): boolean => {
+export const createWorkout = async (workout: Workout): Promise<boolean> => {
     try {
-        let dataBase: Database = loadDB();
-        dataBase.workouts.push(workout);
-        saveToDatabase(dataBase);
+        const pool = await getConnection();
+        await pool.request()
+            .input("id", workout.id)
+            .input("name", workout.name)
+            .input("mode", workout.mode)
+            .input("equipment", JSON.stringify(workout.equipment))
+            .input("exercises", JSON.stringify(workout.exercises))
+            .input("createdAt", workout.createdAt)
+            .input("updatedAt", workout.updatedAt)
+            .input("trainerTips", JSON.stringify(workout.trainerTips))
+            .query(`
+                INSERT INTO Workouts (id, name, mode, equipment, exercises, createdAt, updatedAt, trainerTips)
+                VALUES (@id, @name, @mode, @equipment, @exercises, @createdAt, @updatedAt, @trainerTips)
+            `);
         return true;
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-export const loadWorkout = (id: string): Workout | undefined => {
+export const updateWorkout = async (id: string, workout: Workout): Promise<boolean> => {
     try {
-        let dataBase: Database = loadDB();
-        return dataBase.workouts.find((workout: Workout) => workout.id === id);
+        const current = await loadWorkout(id);
+        if (!current) return false;
+
+        const pool = await getConnection();
+        const result = await pool.request()
+            .input("id", id)
+            .input("name", workout.name ?? current.name)
+            .input("mode", workout.mode ?? current.mode)
+            .input("equipment", JSON.stringify(workout.equipment ?? current.equipment))
+            .input("exercises", JSON.stringify(workout.exercises ?? current.exercises))
+            .input("updatedAt", new Date().toISOString())
+            .input("trainerTips", JSON.stringify(workout.trainerTips ?? current.trainerTips))
+            .query(`
+                UPDATE Workouts 
+                SET name = @name, mode = @mode, equipment = @equipment, exercises = @exercises,
+                    updatedAt = @updatedAt, trainerTips = @trainerTips
+                WHERE id = @id
+            `);
+
+        return (result.rowsAffected[0] ?? 0) > 0;
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-export const updateWorkout = (id: string, workout: Workout): boolean => {
+export const deleteWorkout = async (id: string): Promise<boolean> => {
     try {
-        let dataBase: Database = loadDB();
-        let updated = false;
-        dataBase.workouts.forEach((work: Workout) => {
-            if (work.id === id) {
-                if (workout.name !== undefined) work.name = workout.name;
-                if (workout.mode !== undefined) work.mode = workout.mode;
-                if (workout.equipment !== undefined) work.equipment = workout.equipment;
-                if (workout.exercises !== undefined) work.exercises = workout.exercises;
-                if (workout.trainerTips !== undefined) work.trainerTips = workout.trainerTips;
-                work.updatedAt = new Date().toISOString();
-                updated = true;
-            }
-        });
-        if (!updated) {
-            return false;
-        }
-        saveToDatabase(dataBase);
+        const pool = await getConnection();
+        const result = await pool.request()
+            .input("id", id)
+            .query("DELETE FROM Workouts WHERE id = @id");
+
+        return (result.rowsAffected[0] ?? 0) > 0;
+    } catch (error) {
+        throw toHttpError(error);
+    }
+};
+
+
+export const loadRecord = async (id: string): Promise<WorkoutRecord | undefined> => {
+    try {
+        const pool = await getConnection();
+        const result = await pool.request()
+            .input("id", id)
+            .query("SELECT * FROM Records WHERE id = @id");
+
+        if (result.recordset.length === 0) return undefined;
+        return result.recordset[0];
+    } catch (error) {
+        throw toHttpError(error);
+    }
+};
+
+export const createRecord = async (record: WorkoutRecord): Promise<boolean> => {
+    try {
+        const pool = await getConnection();
+        const memberStr = typeof record.member === "string" ? record.member : (record.member as any)?.name ?? "";
+
+        await pool.request()
+            .input("id", record.id)
+            .input("workout", record.workout)
+            .input("record", record.record)
+            .input("memberId", record.memberId ?? null)
+            .input("member", memberStr)
+            .query(`
+                INSERT INTO Records (id, workout, record, memberId, member)
+                VALUES (@id, @workout, @record, @memberId, @member)
+            `);
         return true;
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-export const deleteWorkout = (id: string): boolean => {
+export const updateRecord = async (id: string, record: WorkoutRecord): Promise<boolean> => {
     try {
-        let dataBase: Database = loadDB();
-        const initialLength = dataBase.workouts.length;
-        const workoutsActualizados = dataBase.workouts.filter((workout: Workout) => workout.id !== id);
-        if (workoutsActualizados.length === initialLength) {
-            return false;
-        }
-        dataBase.workouts = workoutsActualizados;
-        saveToDatabase(dataBase);
-        return true;
+        const current = await loadRecord(id);
+        if (!current) return false;
+
+        const pool = await getConnection();
+        const memberStr = record.member 
+            ? (typeof record.member === "string" ? record.member : (record.member as any)?.name ?? "")
+            : current.member;
+
+        const result = await pool.request()
+            .input("id", id)
+            .input("workout", record.workout ?? current.workout)
+            .input("record", record.record ?? current.record)
+            .input("memberId", record.memberId ?? current.memberId ?? null)
+            .input("member", memberStr)
+            .query(`
+                UPDATE Records
+                SET workout = @workout, record = @record, memberId = @memberId, member = @member
+                WHERE id = @id
+            `);
+
+        return (result.rowsAffected[0] ?? 0) > 0;
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-// records
-export const loadRecord = (id: string): WorkoutRecord | undefined => {
+export const deleteRecord = async (id: string): Promise<boolean> => {
     try {
-        let datos: Database = loadDB();
-        return datos.records.find((record: WorkoutRecord) => record.id === id);
+        const pool = await getConnection();
+        const result = await pool.request()
+            .input("id", id)
+            .query("DELETE FROM Records WHERE id = @id");
+
+        return (result.rowsAffected[0] ?? 0) > 0;
     } catch (error) {
         throw toHttpError(error);
     }
 };
 
-export const createRecord = (record: WorkoutRecord): boolean => {
-    try {
-        let dataBase: Database = loadDB();
-        dataBase.records.push(record);
-        saveToDatabase(dataBase);
-        return true;
-    } catch (error) {
-        throw toHttpError(error);
-    }
-};
 
-export const updateRecord = (id: string, record: WorkoutRecord): boolean => {
-    try {
-        let dataBase: Database = loadDB();
-        let updated = false;
-        dataBase.records.forEach((reco: WorkoutRecord) => {
-            if (reco.id === id) {
-                if (record.member !== undefined) reco.member = record.member;
-                if (record.record !== undefined) reco.record = record.record;
-                if (record.memberId !== undefined) reco.memberId = record.memberId;
-                if (record.workout !== undefined) reco.workout = record.workout;
-                updated = true;
-            }
-        });
-        if (!updated) {
-            return false;
-        }
-        saveToDatabase(dataBase);
-        return true;
-    } catch (error) {
-        throw toHttpError(error);
-    }
-};
 
-export const deleteRecord = (id: string): boolean => {
+export const traeApi = async (): Promise<string> => {
     try {
-        let dataBase: Database = loadDB();
-        const initialLength = dataBase.records.length;
-        const recordActualizados = dataBase.records.filter((record: WorkoutRecord) => record.id !== id);
-        if (recordActualizados.length === initialLength) {
-            return false;
-        }
-        dataBase.records = recordActualizados;
-        saveToDatabase(dataBase);
-        return true;
-    } catch (error) {
-        throw toHttpError(error);
-    }
-};
+        const pool = await getConnection();
+        const result = await pool.request()
+            .query("SELECT valor FROM Config WHERE clave = 'api'");
 
-export const traeApi = (): string => {
-    try {
-        return loadDB().api;
+        return result.recordset[0]?.valor || "angel";
     } catch (error) {
         throw toHttpError(error);
     }
